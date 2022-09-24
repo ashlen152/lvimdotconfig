@@ -10,7 +10,16 @@ an executable
 -- general
 lvim.log.level = "warn"
 lvim.format_on_save = true
-lvim.colorscheme = "sonokai"
+lvim.background = "dark"
+lvim.colorscheme = "gruvbox-material"
+vim.g.gruvbox_material_background = 'soft'
+vim.g.gruvbox_material_foreground = 'mix'
+vim.g.gruvbox_material_cursor = "green"
+vim.g.gruvbox_material_transparent_background = 0
+vim.g.gruvbox_material_visual = 'reverse'
+-- vim.g.gruvbox_material_menu_selection_background = 'yellow'
+
+
 vim.wo.number = true
 
 vim.opt.title = true
@@ -67,6 +76,8 @@ keymap("n", "-", "<C-x>", default_opts)
 keymap("n", "dw", "vb_d", default_opts)
 keymap("v", "p", '"_dP', default_opts)
 keymap('n', "<C-p>", ":Telescope find_files<cr>", default_opts)
+keymap('n', "<S-h>", ":BufferLineCyclePrev<cr>", default_opts)
+keymap('n', "<S-l>", ":BufferLineCycleNext<cr>", default_opts)
 -- Split window
 -- add your own keymapping
 -- unmap a default keymapping
@@ -76,21 +87,21 @@ keymap('n', "<C-p>", ":Telescope find_files<cr>", default_opts)
 
 -- Change Telescope navigation to use j and k for navigation and n and p for history in both input and normal mode.
 -- we use protected-mode (pcall) just in case the plugin wasn't loaded yet.
--- local _, actions = pcall(require, "telescope.actions")
--- lvim.builtin.telescope.defaults.mappings = {
---   -- for input mode
---   i = {
---     ["<C-j>"] = actions.move_selection_next,
---     ["<C-k>"] = actions.move_selection_previous,
---     ["<C-n>"] = actions.cycle_history_next,
---     ["<C-p>"] = actions.cycle_history_prev,
---   },
---   -- for normal mode
---   n = {
---     ["<C-j>"] = actions.move_selection_next,
---     ["<C-k>"] = actions.move_selection_previous,
---   },
--- }
+--[[ local _, actions = pcall(require, "telescope.actions") ]]
+--[[ lvim.builtin.telescope.defaults.mappings = { ]]
+--[[   -- for input mode ]]
+--[[   i = { ]]
+--[[     ["<C-j>"] = actions.move_selection_next, ]]
+--[[     ["<C-k>"] = actions.move_selection_previous, ]]
+--[[     ["<C-n>"] = actions.cycle_history_next, ]]
+--[[     ["<C-p>"] = actions.cycle_history_prev, ]]
+--[[   }, ]]
+--[[   --   -- for normal mode ]]
+--[[   n = { ]]
+--[[     ["<C-j>"] = actions.move_selection_next, ]]
+--[[     ["<C-k>"] = actions.move_selection_previous, ]]
+--[[   }, ]]
+--[[ } ]]
 -- Use which-key to add extra bindings with the leader-key prefix
 
 lvim.builtin.which_key.mappings["j"] = { "<cmd>:join<CR>", "Join line" }
@@ -100,15 +111,15 @@ lvim.builtin.which_key.mappings.s['s'] = {
 lvim.builtin.which_key.mappings.s['v'] = {
   "<cmd>vsplit<cr><C-w>w", "split v"
 }
--- lvim.builtin.which_key.mappings["t"] = {
---   name = "+Trouble",
---   r = { "<cmd>Trouble lsp_references<cr>", "References" },
---   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
---   d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
---   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
---   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
---   w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
--- }
+lvim.builtin.which_key.mappings["t"] = {
+  name = "+Trouble",
+  r = { "<cmd>Trouble lsp_references<cr>", "References" },
+  f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
+  d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
+  q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
+  l = { "<cmd>Trouble loclist<cr>", "LocationList" },
+  w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
+}
 
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -234,10 +245,15 @@ linters.setup {
 }
 -- Additional Plugins
 lvim.plugins = {
+  -- colorscheme plugins
+  { "sainnhe/gruvbox-material" },
   { "folke/tokyonight.nvim" },
+  { "cocopon/iceberg.vim" },
+  { "jnurmine/Zenburn" },
   { "arcticicestudio/nord-vim" },
   { "sainnhe/sonokai" },
   { "sainnhe/everforest" },
+  { "morhetz/gruvbox" },
   {
     "folke/trouble.nvim",
     cmd = "TroubleToggle",
@@ -312,15 +328,7 @@ lvim.plugins = {
         "import_statement",
         "operation_type",
       }
-      char_highlight_list = {
-        "IndentBlanklineIndent1",
-        "IndentBlanklineIndent2",
-        "IndentBlanklineIndent3",
-        "IndentBlanklineIndent4",
-        "IndentBlanklineIndent5",
-        "IndentBlanklineIndent6",
-      },
-          vim.cmd([[let &t_Cs = "\e[4:3m"]])
+      vim.cmd([[let &t_Cs = "\e[4:3m"]])
       vim.cmd([[let &t_Ce = "\e[4:0m"]])
       vim.cmd [[highlight IndentBlanklineIndent1 guifg=#E06C75 gui=nocombine]]
       vim.cmd [[highlight IndentBlanklineIndent2 guifg=#E5C07B gui=nocombine]]
@@ -377,16 +385,11 @@ lvim.plugins = {
     event = "BufRead",
     config = function()
       vim.cmd "highlight default link gitblame SpecialComment"
-      vim.g.gitblame_enabled = 0
+      vim.g.GitBlameDisable = true
     end,
   },
   {
     "tpope/vim-surround",
-
-    -- make sure to change the value of `timeoutlen` if it's not triggering correctly, see https://github.com/tpope/vim-surround/issues/117
-    -- setup = function()
-    --  vim.o.timeoutlen = 500
-    -- end
   },
   { 'hrsh7th/nvim-compe' },
   { 'akinsho/git-conflict.nvim',
@@ -400,7 +403,38 @@ lvim.plugins = {
           current = 'DiffAdd',
         }
       })
-    end, }
+    end,
+  },
+  { 'tzachar/cmp-tabnine',
+    run = './install.sh',
+    requires = 'hrsh7th/nvim-cmp',
+    config = function()
+      local tabnine = require('cmp_tabnine.config')
+
+      tabnine.setup({
+        max_lines = 1000,
+        max_num_results = 20,
+        sort = true,
+        run_on_every_keystroke = true,
+        snippet_placeholder = '..',
+        ignored_file_types = {
+          -- default is not to ignore
+          -- uncomment to ignore in lua:
+          -- lua = true
+        },
+        show_prediction_strength = false
+      })
+    end,
+  },
+  {
+    "windwp/nvim-ts-autotag",
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+  {
+    'editorconfig/editorconfig-vim'
+  },
 }
 
 
@@ -408,6 +442,8 @@ vim.cmd [[
   set completeopt=menuone,noinsert,noselect
   highlight! default link CmpItemKind CmpItemMenuDefault
 ]]
+
+vim.cmd [[set termguicolors]]
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 vim.api.nvim_create_autocmd("BufEnter", {
